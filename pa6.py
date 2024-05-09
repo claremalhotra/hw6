@@ -15,19 +15,16 @@ def make_change(total):
     coin_options = []
     coin_vals2 = [x for x in coin_vals if total >= x]
     if len(coin_vals2) == 0:
-        return []
-
+        return [[]]
     for i in coin_vals2:
         inner_results = make_change(total-i)
         for result in inner_results:
             coin_options.append([i] + result)
-
     unique_coins = []
     for coin_option in coin_options:
         coin_option.sort()
         if coin_option not in unique_coins:
             unique_coins.append(coin_option)
-
     return unique_coins
 
 def dict_filter(func, dic):
@@ -50,29 +47,30 @@ class KVTree:
     def add_child(self, child):
         self.children.append(child)
 
-    def treemap(self, fn):
-        """This function takes in a function and a tree and modifies the tree
-        according to the function"""
-       # if len(self.children) == 0:
-        #     self.children = fn(tree)
-        #     return
-        self.key, self.value = fn(self.key, self.value)
-        for child in self.children:
-            return child.treemap(fn)
-    # def print_tree(self):
-    #     print(self.key)
-    #     print(self.value)
-    #     for child in self.children:
-    #         return child.print_tree()
-        
-# samplekv = KVTree("us", 4.6)
-# pa = KVTree("pa", 1.9)
-# samplekv.add_child(pa)
-# pa.add_child(KVTree("Pittsburgh", 0.3))
-# pa.add_child(KVTree("Philadelphia", 1.6))
-# il = KVTree("il", 2.7)
-# samplekv.add_child(il)
-# il.add_child(KVTree("Chicago", 2.7))
+def treemap(fn, tree):
+    """This function takes in a function and a tree and modifies the tree
+    according to the function"""
+    # if len(self.children) == 0:
+    #     self.children = fn(tree)
+    #     return
+    tree.key, tree.value = fn(tree.key, tree.value)
+    for child in tree.children:
+        return treemap(fn, child)
+    
+def print_tree(tree):
+    print(tree.key)
+    print(tree.value)
+    for child in tree.children:
+        return print_tree(child)
+
+samplekv = KVTree("us", 4.6)
+pa = KVTree("pa", 1.9)
+samplekv.add_child(pa)
+pa.add_child(KVTree("Pittsburgh", 0.3))
+pa.add_child(KVTree("Philadelphia", 1.6))
+il = KVTree("il", 2.7)
+samplekv.add_child(il)
+il.add_child(KVTree("Chicago", 2.7))
 
 
 
@@ -94,14 +92,14 @@ class DTree:
         else:
             raise ValueError
 
-    def tuple_atleast(self):
+    def tuple_atleast3(self):
         index = self.variable
         print(index)
+        
         if self.outcome is not None:
             return index
-        
+
         lessequal_index = self.lessequal.tuple_atleast()
-        print("le", lessequal_index)
         if lessequal_index > index:
             
             index = lessequal_index
@@ -110,6 +108,28 @@ class DTree:
         if greater_index > index:
             index = greater_index
         return index
+    
+    def tuple_atleast(self):
+        def tuple_helper(node):
+            index = self.variable
+            print(index)
+        
+            if self.outcome is not None:
+                print("self.outcome is not None")
+                return index
+            
+            lessequal_index = self.lessequal.tuple_atleast()
+            print("lessequal", lessequal_index)
+            if lessequal_index > index:
+                print("lessequal_index > index")
+                index = lessequal_index
+
+            greater_index = self.greater.tuple_atleast()
+            if greater_index > index:
+                print("greater_index > index")
+                index = greater_index
+            return index
+        return tuple_helper(self) + 1
        #  else:
        #      #return index
        #      if self.variable > index:
